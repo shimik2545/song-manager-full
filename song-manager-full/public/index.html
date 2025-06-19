@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>בחר קטגוריה</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 30px; background: #f4f4f4; direction: rtl; }
+    button { font-size: 20px; margin: 10px; padding: 15px 30px; border-radius: 10px; border: none; background-color: #2196f3; color: white; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>בחר קטגוריה</h1>
+  <button onclick="selectCategory('ריקודים')">ריקודים</button>
+  <button onclick="selectCategory('רגש')">רגש – קומזיץ</button>
+  <button onclick="selectCategory('סעודה')">סעודה – יצירות</button>
+
+  <script>
+    function selectCategory(category) {
+      window.location.href = "rhythm.html?category=" + encodeURIComponent(category);
+    }
+  </script>
+</body>
+</html>
