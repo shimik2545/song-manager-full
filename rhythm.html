@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>בחר קצב</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 30px; background: #fffde7; direction: rtl; }
+    .rhythm-container { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
+    .rhythm-button { font-size: 18px; padding: 10px 24px; border-radius: 10px; border: none; background-color: #4caf50; color: white; cursor: pointer; }
+    input[type="text"] { padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; width: 200px; }
+    #addSection { margin-top: 30px; }
+    #addBtn { background-color: #2196f3; margin-right: 10px; color: white; }
+  </style>
+</head>
+<body>
+  <h1 id="title">בחר קצב</h1>
+  <div id="rhythms"></div>
+
+  <div id="addSection">
+    <h3>➕ הוסף קצב חדש</h3>
+    <input type="text" id="newRhythmInput" placeholder="שם קצב חדש">
+    <button id="addBtn" onclick="addNewRhythm()">הוסף</button>
+  </div>
+
+  <script>
+    const category = new URLSearchParams(window.location.search).get("category");
+    document.getElementById("title").innerText = "בחר קצב עבור: " + category;
+
+    const defaultRhythms = {
+      "ריקודים": ["מהיר", "בינוני", "איטי"],
+      "רגש": ["איטי", "נוסטלגי", "הרמוני"],
+      "סעודה": ["קלאסי", "ניגון", "אווירה"]
+    };
+
+    const container = document.getElementById("rhythms");
+
+    function getRhythms() {
+      const saved = localStorage.getItem("customRhythms-" + category);
+      if (saved) return JSON.parse(saved);
+      return [...defaultRhythms[category]];
+    }
+
+    function saveRhythms(list) {
+      localStorage.setItem("customRhythms-" + category, JSON.stringify(list));
+    }
+
+    function renderRhythms() {
+      container.innerHTML = "";
+      const rhythms = getRhythms();
+      rhythms.forEach((rhythm) => {
+        const row = document.createElement("div");
+        row.className = "rhythm-container";
+
+        const btn = document.createElement("button");
+        btn.className = "rhythm-button";
+        btn.textContent = rhythm;
+        btn.onclick = () => {
+          window.location.href = `songs.html?category=${encodeURIComponent(category)}&rhythm=${encodeURIComponent(rhythm)}`;
+        };
+
+        row.appendChild(btn);
+        container.appendChild(row);
+      });
+    }
+
+    function addNewRhythm() {
+      const input = document.getElementById("newRhythmInput");
+      const newRhythm = input.value.trim();
+      if (!newRhythm) return;
+      const list = getRhythms();
+      if (!list.includes(newRhythm)) {
+        list.push(newRhythm);
+        saveRhythms(list);
+        renderRhythms();
+      }
+      input.value = "";
+    }
+
+    renderRhythms();
+  </script>
+
+  <div style="margin-top: 40px;">
+    <button onclick="window.location.href='index.html'" style="padding: 10px 20px; font-size: 16px; border-radius: 8px; background-color: #9e9e9e; color: white; border: none; cursor: pointer;">
+      🔙 חזור
+    </button>
+  </div>
+</body>
+</html>
