@@ -2,22 +2,67 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>בחר קטגוריה</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>רשימת שירים</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#607d8b">
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 30px; background: #f4f4f4; direction: rtl; }
-    button { font-size: 20px; margin: 10px; padding: 15px 30px; border-radius: 10px; border: none; background-color: #2196f3; color: white; cursor: pointer; }
+    body { font-family: Arial, sans-serif; margin:20px; background:#f4f6f8; }
+    h1 { text-align:center; }
+    ul { list-style:none; padding:0; }
+    li { background:#fff; margin:8px 0; padding:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
   </style>
 </head>
 <body>
-  <h1>בחר קטגוריה</h1>
-  <button onclick="selectCategory('ריקודים')">ריקודים</button>
-  <button onclick="selectCategory('רגש')">רגש – קומזיץ</button>
-  <button onclick="selectCategory('סעודה')">סעודה – יצירות</button>
+  <h1>🎵 רשימת שירים</h1>
+  <button onclick="addSong()">➕ הוסף שיר</button>
+  <ul id="songList"></ul>
 
   <script>
-    function selectCategory(category) {
-      window.location.href = "rhythm.html?category=" + encodeURIComponent(category);
+    let db;
+
+    // פתיחת IndexedDB
+    const request = indexedDB.open("SongsDB", 1);
+    request.onupgradeneeded = (event) => {
+      db = event.target.result;
+      db.createObjectStore("songs", { keyPath: "id", autoIncrement: true });
+    };
+    request.onsuccess = (event) => {
+      db = event.target.result;
+      loadSongs();
+    };
+
+    function saveSong(name) {
+      const tx = db.transaction("songs", "readwrite");
+      tx.objectStore("songs").add({ name });
+      tx.oncomplete = loadSongs;
+    }
+
+    function loadSongs() {
+      const tx = db.transaction("songs", "readonly");
+      const store = tx.objectStore("songs");
+      const req = store.getAll();
+      req.onsuccess = () => {
+        const songs = req.result;
+        const list = document.getElementById("songList");
+        list.innerHTML = "";
+        songs.forEach(s => {
+          const li = document.createElement("li");
+          li.textContent = s.name;
+          list.appendChild(li);
+        });
+      };
+    }
+
+    function addSong() {
+      const name = prompt("שם השיר:");
+      if (name) saveSong(name);
+    }
+
+    // רישום Service Worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("✅ Service Worker רשום"))
+        .catch(err => console.error("❌ שגיאה:", err));
     }
   </script>
 </body>
